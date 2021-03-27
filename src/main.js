@@ -2,6 +2,11 @@ var readline = require('readline');
 var x;
 var y;
 
+var eixoX = [2, 1, -1, -2, -2, -1, 1, 2]
+var eixoY = [1, 2, 2, 1, -1, -2, -2, -1]
+
+var tabuleiro = []
+
 var leitor = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -18,73 +23,116 @@ leitor.question("Entre com as posições (duas casas decimais)?\n", function(ans
       return
     }
 
-    console.log("\nA posição que o cavalo começa e' " + x + y);
+    if(!converteParaNumero(x)){
+      console.log("Entrada inválida")
+      return
+    }
 
-    mostra_movimento(x, y)
-    
+    x = converteParaNumero(x);
+
+    if(validaConversaoParaNumero(x)){
+      console.log("Dados de entrada incorretos!")
+      console.log("Lembre-se de ser uma letra minúscula e um número!")
+      return
+    }
+
+    mover(x, y)
+    imprimir(resp[0], resp[1])
+
     leitor.close();
 });
 
-function aceitavel(x, y){
-  console.log('aceitavel')
-  return (x >= 0 && x <= num - 1 && y >= 0 && y <= num - 1  && tabuleiro[x][y] == 0) ?  true :  false;
+
+function repete(x, y){
+  for(let i = 0; i<tabuleiro.length;i++){
+    if(x == tabuleiro[i][0] && y == tabuleiro[i][1]){
+      return true;
+    }
+  }
+  return false;
 }
 
-function tenta_mover(i, x, y){
-    let done = (i > numSqr ) ? true : false;
-    let k = 0;
-    while (done == false && k < 8){
-      console.log('tenta mover > while')
-      u = x + dx[k]
-      v = y + dy[k]
-      console.log(u)
-      console.log(v)
-      if (aceitavel(u, v)){
-        console.log('tenta mover > while > if aceitavel')
-        tabuleiro[u][v] = i
-        done = tenta_mover(i + 1, u, v)
-        if (done == false){
-            tabuleiro[u][v] = 0;
-        }
+function podeMover(x, y){
+  if(x > 0 && x < 9 && y > 0 && y < 9){
+    return true
+  }
+  return false
+}
+
+function mover(x, y){
+  y = Number(y)
+  let count = 0;
+  let newPosition = []
+  while(count < 8){
+    let somaX = Number(eixoX[count] + x)
+    let somaY = Number(eixoY[count] + y)
+    if(podeMover(somaX, somaY)){
+      if(!repete(somaX, somaY)){
+        newPosition = [somaX, somaY]
+        tabuleiro = [...tabuleiro, newPosition]
+        mover(somaX, somaY)
       }
-      k += 1;
     }
-    return done
+    count++;
+  }
+
+  return false;
 }
 
-function mostra_movimento(x, y){
-    tabuleiro[x][y] = 1
-    done = tenta_mover(2, x, y)
-    string = ""
-    if(done){
-        for (x in range(0, num)){
-            for (y in range(0, num)){
-                if (tabuleiro[x][y] < 10){
-                    string += "0" + String(tabuleiro[x][y]) + " "
-                }
-                else
-                    string += String(tabuleiro[x][y]) + " "
-            }
-            string += "\n"
-        }
-        console.log(string)
-    }else{
-      console.log("Nao ha passeio possivel\n")
-    }
-}
-var dx = [2, 1, -1, -2, -2, -1, 1, 2]
-var dy = [1, 2, 2, 1, -1, -2, -2, -1]
-
-var num = 6; //numero de posições do tabuleiro
-var numSqr = num * num //Numero total de casas
-
-var tabuleiro = [[], [], [], [], [], [], [], [], [], []];
-for (x in range(0, num)){
-  for (y in range(0, num)){
-    tabuleiro[x].push(0)
+function imprimir(x, y){
+  console.log('./ cavalo '+x+y)
+  for(let i = 0; i<tabuleiro.length;i++){
+    tabuleiro[i][0] = (converteParaLetra(tabuleiro[i][0]))
+  }
+  for(let j = 0; j<tabuleiro.length;j++){
+    console.log(tabuleiro[j][0], tabuleiro[j][1])
   }
 }
 
-function range(_start_, _end_) {
-  return (new Array(_end_ - _start_ + 1)).fill(undefined).map((_, k) =>k + _start_);
+function validaConversaoParaNumero(x){
+  if(x < 1 || x > 8)
+    return false;
 }
+
+function converteParaNumero(x){
+  if(x == 'a'){
+    return 1;
+  }else if(x == 'b'){
+    return 2;
+  }else if(x == 'c'){
+    return 3;
+  }else if(x == 'd'){
+    return 4;
+  }else if(x == 'e'){
+    return 5;
+  }else if(x == 'f'){
+    return 6;
+  }else if(x == 'g'){
+    return 7;
+  }else if(x == 'h'){
+    return 8;
+  }
+  return false;
+}
+
+function converteParaLetra(x){
+  if(x == 1){
+    return 'a';
+  }else if(x == 2){
+    return 'b';
+  }else if(x == 3){
+    return 'c';
+  }else if(x == 4){
+    return 'd';
+  }else if(x == 5){
+    return 'e';
+  }else if(x == 6){
+    return 'f';
+  }else if(x == 7){
+    return 'g';
+  }else if(x == 8){
+    return 'h';
+  }
+  return false;
+}
+
